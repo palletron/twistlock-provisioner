@@ -1,0 +1,27 @@
+name:                twistlock-provisioner
+version:             0.0.1
+synopsis:            A json over http api for provisioning twistlock containers
+homepage:            https://github.com/d-snp/twistlock-provisioner
+license:             MIT
+author:              Tinco Andringa
+maintainer:          mail@tinco.nl
+category:            Web
+build-type:          Simple
+cabal-version:       >=1.8
+
+executable provisioner
+  main-is:             Main.hs
+  -- other-modules:       
+  build-depends:       base ==4.6.*
+                     , wai
+                     , warp
+                     , http-types
+                     , resourcet
+                     , scotty
+                     , text
+                     , bytestring
+                     , monad-logger ==0.3.0
+                     , transformers
+                     , wai-middleware-static
+                     , wai-extra
+                     , time
