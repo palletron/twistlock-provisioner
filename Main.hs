@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 import Web.Scotty
+import Data.Aeson hiding (json)
 
 main = scotty 3000 $ do
 	get "/" $ do
-		html "Hello World!"
+		json $ object [ "status" .= ("ok" :: String) ]

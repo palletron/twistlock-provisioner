@@ -12,16 +12,6 @@ cabal-version:       >=1.8
 executable provisioner
   main-is:             Main.hs
   -- other-modules:       
-  build-depends:       base ==4.6.*
-                     , wai
-                     , warp
-                     , http-types
-                     , resourcet
-                     , scotty
-                     , text
-                     , bytestring
-                     , monad-logger ==0.3.0
-                     , transformers
-                     , wai-middleware-static
-                     , wai-extra
-                     , time
+  build-depends:       base,
+                       aeson,
+                       scotty
