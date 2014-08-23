@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+message = gets.chomp!
+puts "#{message} from stdin!"

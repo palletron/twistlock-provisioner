@@ -16,4 +16,5 @@ executable provisioner
                        aeson,
                        scotty,
                        process,
-                       transformers
+                       transformers,
+                       pipes
