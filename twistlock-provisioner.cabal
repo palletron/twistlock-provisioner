@@ -17,4 +17,6 @@ executable provisioner
                        scotty,
                        process,
                        transformers,
-                       pipes
+                       pipes,
+                       system-filepath,
+                       text

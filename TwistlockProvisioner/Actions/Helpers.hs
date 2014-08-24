@@ -1,7 +1,8 @@
 module TwistlockProvisioner.Actions.Helpers 
 (
 	runAction,
-	runActionWithInput
+	runActionWithInput,
+	ActionResult
 )
 where
 import System.Process
