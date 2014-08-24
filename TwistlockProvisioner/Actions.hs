@@ -1,5 +1,5 @@
 module TwistlockProvisioner.Actions where
-import TwistlockProvisioner.Helpers
+import TwistlockProvisioner.Actions.Helpers
 import System.Process
 import System.Exit
 import Pipes.Prelude

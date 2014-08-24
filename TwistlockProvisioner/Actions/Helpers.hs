@@ -1,4 +1,4 @@
-module TwistlockProvisioner.Helpers 
+module TwistlockProvisioner.Actions.Helpers 
 (
 	runAction,
 	runActionWithInput
