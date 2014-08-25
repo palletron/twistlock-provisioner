@@ -2,7 +2,9 @@
 import Web.Scotty
 import Data.Aeson hiding (json)
 import TwistlockProvisioner.Actions as Action
+import TwistlockProvisioner.Configuration
 import Control.Monad.IO.Class
+import Filesystem.Path.CurrentOS
 import System.Exit
 
 main :: IO()
@@ -17,6 +19,10 @@ main = scotty 3000 $ do
 		json $ object [ "status" .= ("ok" :: String) ]
 
 	post "/container-templates" $ do
+		name <- param "name"
+		url <- param "url"
+		(out, err, pHandle) <- liftIO $ downloadContainerTemplateGit cfg name url
+		
 		json $ object [ "status" .= ("ok" :: String) ]
 
 	get "/container-instances" $ do
@@ -24,3 +30,5 @@ main = scotty 3000 $ do
 
 	post "/container-instances" $ do
 		json $ object [ "status" .= ("ok" :: String) ]
+	where
+		cfg = Configuration (fromText "templates/")

@@ -19,4 +19,6 @@ executable provisioner
                        transformers,
                        pipes,
                        system-filepath,
-                       text
+                       text,
+                       directory,
+                       pipes-concurrency
