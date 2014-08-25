@@ -6,6 +6,11 @@ import TwistlockProvisioner.Configuration
 import Control.Monad.IO.Class
 import Filesystem.Path.CurrentOS
 import System.Exit
+import System.Process
+import Pipes.Prelude hiding (show)
+import Pipes.Core
+import Pipes
+import Control.Concurrent
 
 main :: IO()
 main = scotty 3000 $ do
@@ -22,8 +27,13 @@ main = scotty 3000 $ do
 		name <- param "name"
 		url <- param "url"
 		(out, err, pHandle) <- liftIO $ downloadContainerTemplateGit cfg name url
-		
-		json $ object [ "status" .= ("ok" :: String) ]
+		liftIO $ forkIO $ runEffect $ out >-> stdoutLn
+		liftIO $ forkIO $ runEffect $ err >-> stdoutLn
+
+		exitCode <- liftIO $ waitForProcess pHandle
+		if exitCode == ExitSuccess
+		  then json $ object [ "status" .= ("ok" :: String) ]
+		  else json $ object [ "status" .= ("not ok" :: String)]
 
 	get "/container-instances" $ do
 		json $ object [ "status" .= ("ok" :: String) ]
