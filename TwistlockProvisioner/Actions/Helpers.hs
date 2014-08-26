@@ -2,7 +2,8 @@ module TwistlockProvisioner.Actions.Helpers
 (
 	runAction,
 	runActionWithInput,
-	ActionResult
+	ActionResult,
+	readCommand
 )
 where
 import System.Process
@@ -32,6 +33,11 @@ runActionWithInput command input = do
 	hPutStr inp input
 	hClose inp
 	return $ actionResult outH errH pHandle
+
+readCommand :: String -> IO String
+readCommand command = do
+	(_, outH, _, _) <- runInteractiveCommand command
+	hGetContents outH
 
 actionResult :: MonadIO m => Handle -> Handle -> ProcessHandle -> ActionResult m 
 actionResult outH errH pHandle = (outP, errP, pHandle)

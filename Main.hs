@@ -21,7 +21,8 @@ main = scotty 3000 $ do
 		  else json $ object [ "status" .= ("not ok" :: String)]
 
 	get "/container-templates" $ do
-		json $ object [ "status" .= ("ok" :: String) ]
+		templates <- liftIO $ listContainers cfg
+		json $ object ["container-templates" .= templates]
 
 	post "/container-templates" $ do
 		name <- param "name"

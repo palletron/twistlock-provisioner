@@ -6,19 +6,37 @@ import Filesystem.Path.CurrentOS as FP
 import System.Directory
 import System.Process
 import System.Exit
-import Pipes.Prelude hiding (show)
+import Pipes.Prelude hiding (show, mapM, filter)
 import Pipes.Core
 import Pipes
-import Data.Text
+import Data.Text hiding (filter)
 
 {-- Download a container template via git --}
 downloadContainerTemplateGit :: MonadIO m => Configuration -> Text -> Text -> IO (ActionResult m)
 downloadContainerTemplateGit cfg name url = do
-	createDirectoryIfMissing True (show templatePath)
+	createDirectoryIfMissing True (unpack $ encode $ templatePath)
 	runAction getCommand 
   where
-  	getCommand = "cd " ++ (show  templatePath) ++ "; " ++ "git clone " ++ (show url)
-	templatePath = getTemplatePath cfg name
+  	getCommand = "cd " ++ (unpack $ encode templatePath) ++ "; " ++ "git clone " ++ (unpack $ url) ++ " " ++ (unpack name)
+	templatePath = containerTemplateDir cfg
+
+listContainers :: Configuration -> IO ([(String, String)])
+listContainers cfg = do
+	names <- getDirectoryContents $ unpack $ encode $ templateDirPath
+	let filteredNames = filter (\ n -> n /= "." && n /= "..") names
+	mapM getUrl filteredNames
+  where
+	templateDirPath = containerTemplateDir cfg
+	templatePath :: String -> FilePath
+	templatePath name = getTemplatePath cfg $ pack name
+	cdToTemplatePath :: String -> String
+	cdToTemplatePath name = "cd " ++ ( unpack $ encode $ templatePath name)
+	getUrlCommand = "git remote show -n origin|grep Fetch | awk '{ print $3 }'"
+	getUrl :: String -> IO (String, String)
+	getUrl name = do
+		result <- readCommand ((cdToTemplatePath name) ++ "; " ++ getUrlCommand)
+		return (name, result)
+		
 
 {- To build a container, we need the current configuration
  - so we can navigate to the container template directory.
