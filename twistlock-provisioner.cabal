@@ -11,6 +11,7 @@ cabal-version:       >=1.8
 
 executable provisioner
   main-is:             Main.hs
+  ghc-options:         -threaded -with-rtsopts=-N
   -- other-modules:       
   build-depends:       base,
                        aeson,
