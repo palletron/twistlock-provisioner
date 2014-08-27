@@ -1,0 +1,8 @@
+Next steps:
+
+  - Read a yml file that reads the container, return it with the rest of the template information
+  - Update a container template git repository
+  - Delete a container template
+
+  - Start / Stop / List / Link container instances
+  - Streaming responses
