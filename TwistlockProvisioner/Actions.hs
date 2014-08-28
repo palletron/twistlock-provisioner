@@ -10,6 +10,7 @@ import Pipes.Prelude hiding (show, mapM, filter)
 import Pipes.Core
 import Pipes
 import Data.Text hiding (filter)
+import qualified Data.Yaml as Y
 
 {-- Download a container template via git --}
 downloadContainerTemplateGit :: MonadIO m => Configuration -> Text -> Text -> IO (ActionResult m)
@@ -20,22 +21,36 @@ downloadContainerTemplateGit cfg name url = do
   	getCommand = "cd " ++ (unpack $ encode templatePath) ++ "; " ++ "git clone " ++ (unpack $ url) ++ " " ++ (unpack name)
 	templatePath = containerTemplateDir cfg
 
-listContainers :: Configuration -> IO ([(String, String)])
+{- Return all container templates and their descriptions
+ -}
+listContainers :: Y.FromJSON a => Configuration -> IO ([(String, Maybe a)])
 listContainers cfg = do
 	names <- getDirectoryContents $ unpack $ encode $ templateDirPath
 	let filteredNames = filter (\ n -> n /= "." && n /= "..") names
-	mapM getUrl filteredNames
-  where
+	mapM getDescription filteredNames
+	where
 	templateDirPath = containerTemplateDir cfg
-	templatePath :: String -> FilePath
-	templatePath name = getTemplatePath cfg $ pack name
-	cdToTemplatePath :: String -> String
-	cdToTemplatePath name = "cd " ++ ( unpack $ encode $ templatePath name)
+	getDescription :: Y.FromJSON a => String -> IO (String, Maybe a)
+	getDescription name = do
+		description <- getContainerDescription cfg name
+		return (name, description)
+
+{- Get and parse the twistlock.yml of a container template
+ - -}
+getContainerDescription :: Y.FromJSON a => Configuration -> String -> IO (Maybe a)
+getContainerDescription cfg name = Y.decodeFile containerTemplatePath
+	where
+	containerTemplatePath = encodeString $ (containerTemplateDir cfg) </> (decodeString name) </> (decodeString "twistlock.yml")
+
+{-
+ - Gets the git url of a container template
+ - -}
+getGitUrl :: Configuration -> String -> IO String
+getGitUrl cfg name = readCommand (cdToTemplatePath ++ "; " ++ getUrlCommand)
+	where
+	templatePath = getTemplatePath cfg $ pack name
+	cdToTemplatePath = "cd " ++ ( unpack $ encode $ templatePath)
 	getUrlCommand = "git remote show -n origin|grep Fetch | awk '{ print $3 }'"
-	getUrl :: String -> IO (String, String)
-	getUrl name = do
-		result <- readCommand ((cdToTemplatePath name) ++ "; " ++ getUrlCommand)
-		return (name, result)
 		
 
 {- To build a container, we need the current configuration

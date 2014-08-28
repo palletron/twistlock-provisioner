@@ -17,8 +17,8 @@ main = scotty 3000 $ do
 	get "/status.json" $ do
 		exitCode <- liftIO Action.echoHelloWorldWithInput
 		if exitCode == ExitSuccess
-		  then json $ object [ "status" .= ("ok" :: String) ]
-		  else json $ object [ "status" .= ("not ok" :: String)]
+			then json $ object [ "status" .= ("ok" :: String) ]
+			else json $ object [ "status" .= ("not ok" :: String)]
 
 	get "/container-templates" $ do
 		templates <- liftIO $ listContainers cfg
@@ -33,8 +33,8 @@ main = scotty 3000 $ do
 
 		exitCode <- liftIO $ waitForProcess pHandle
 		if exitCode == ExitSuccess
-		  then json $ object [ "status" .= ("ok" :: String) ]
-		  else json $ object [ "status" .= ("not ok" :: String)]
+			then json $ object [ "status" .= ("ok" :: String) ]
+			else json $ object [ "status" .= ("not ok" :: String)]
 
 	get "/container-instances" $ do
 		json $ object [ "status" .= ("ok" :: String) ]

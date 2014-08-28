@@ -22,4 +22,5 @@ executable provisioner
                        system-filepath,
                        text,
                        directory,
-                       pipes-concurrency
+                       pipes-concurrency,
+                       yaml
