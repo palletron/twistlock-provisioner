@@ -13,12 +13,12 @@ import Data.Text hiding (filter)
 import qualified Data.Yaml as Y
 
 {-- Download a container template via git --}
-downloadContainerTemplateGit :: MonadIO m => Configuration -> Text -> Text -> IO (ActionResult m)
+downloadContainerTemplateGit :: MonadIO m => Configuration -> String -> String -> IO (ActionResult m)
 downloadContainerTemplateGit cfg name url = do
 	createDirectoryIfMissing True (unpack $ encode $ templatePath)
 	runAction getCommand 
   where
-  	getCommand = "cd " ++ (unpack $ encode templatePath) ++ "; " ++ "git clone " ++ (unpack $ url) ++ " " ++ (unpack name)
+  	getCommand = "cd " ++ (unpack $ encode templatePath) ++ "; " ++ "git clone " ++ url ++ " " ++ name
 	templatePath = containerTemplateDir cfg
 
 {- Return all container templates and their descriptions
@@ -46,12 +46,17 @@ getContainerDescription cfg name = Y.decodeFile containerTemplatePath
  - Gets the git url of a container template
  - -}
 getGitUrl :: Configuration -> String -> IO String
-getGitUrl cfg name = readCommand (cdToTemplatePath ++ "; " ++ getUrlCommand)
+getGitUrl cfg name = readCommand ((cdToTemplatePath cfg name) ++ "; " ++ getUrlCommand)
 	where
-	templatePath = getTemplatePath cfg $ pack name
-	cdToTemplatePath = "cd " ++ ( unpack $ encode $ templatePath)
 	getUrlCommand = "git remote show -n origin|grep Fetch | awk '{ print $3 }'"
-		
+
+updateContainerTemplateGit :: MonadIO m => Configuration -> String -> IO (ActionResult m)
+updateContainerTemplateGit cfg name = runAction $ (cdToTemplatePath cfg name) ++ "; " ++ "git pull"
+
+{- Command for navigating to template path
+ - -}
+cdToTemplatePath :: Configuration -> String -> String
+cdToTemplatePath cfg name = "cd " ++ (encodeString $ getTemplatePath cfg $ pack name)
 
 {- To build a container, we need the current configuration
  - so we can navigate to the container template directory.
