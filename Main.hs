@@ -20,24 +20,31 @@ main = scotty 3000 $ do
 			then json $ object [ "status" .= ("ok" :: String) ]
 			else json $ object [ "status" .= ("not ok" :: String)]
 
-	get "/container-templates" $ do
+	get "/templates" $ do
 		templates <- liftIO $ (listContainers cfg :: IO [(String, Maybe Value)])
-		json $ object ["container-templates" .= templates]
+		json $ object ["templates" .= templates]
 
-	post "/container-templates" $ do
+	post "/templates" $ do
 		name <- param "name"
 		url <- param "url"
 		streamAction $ downloadContainerTemplateGit cfg name url
 
-	post "/container-templates/:name/update" $ do
+	post "/templates/:name/update" $ do
 		name <- param "name"
 		streamAction $ updateContainerTemplateGit cfg name
 
-	get "/container-instances" $ do
+	get "/templates/:name/instances/:instance_id" $ do
 		json $ object [ "status" .= ("ok" :: String) ]
 
-	post "/container-instances" $ do
+	post "/templates/:name/instances" $ do
 		json $ object [ "status" .= ("ok" :: String) ]
+
+	put "/templates/:name/instances/:instance_id/links" $ do
+		json $ object [ "status" .= ("ok" :: String) ]
+
+	delete "/templates/:name/instances/:instance_id" $ do
+		json $ object [ "status" .= ("ok" :: String) ]
+
 	where
 		cfg = Configuration (fromText "templates/")
 		streamAction action = do
