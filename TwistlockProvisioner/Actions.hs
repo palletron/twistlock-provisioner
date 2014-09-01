@@ -62,22 +62,18 @@ cdToTemplatePath cfg name = "cd " ++ (encodeString $ getTemplatePath cfg $ pack 
  - so we can navigate to the container template directory.
  - In that directory we can execute ./control build
  -}
-runBuild :: MonadIO m => Configuration -> Text -> IO (ActionResult m)
-runBuild cfg name = runAction buildCommand 
+buildContainer :: MonadIO m => Configuration -> Text -> IO (ActionResult m)
+buildContainer cfg name = runAction buildCommand 
   where
   	buildCommand = undefined
 	path = getTemplatePath cfg name 
 
+startContainer :: (MonadIO m) => Configuration -> Text -> Y.Value -> IO (ActionResult m)
+startContainer cfg name options = runActionWithInput command input
+	where
+		input = Y.encode options
+		command = (cdToTemplatePath cfg (unpack name)) ++ "; " ++ "./control start"
+
 getTemplatePath :: Configuration -> Text -> FilePath
 getTemplatePath cfg name = FP.append (containerTemplateDir cfg) (fromText name) 
 
-echoHelloWorldWithInput :: IO ExitCode
-echoHelloWorldWithInput = do
-	(outP, _, pHandle) <- runActionWithInput "./hello-world" "Haskell World\n"
-	runEffect $ outP >-> stdoutLn
-	waitForProcess pHandle
-
-echoHelloWorld :: IO ExitCode
-echoHelloWorld = do
-	handle <- runCommand "echo \"Hello World!\""
-	waitForProcess handle

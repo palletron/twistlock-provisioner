@@ -23,4 +23,5 @@ executable provisioner
                        text,
                        directory,
                        pipes-concurrency,
-                       yaml
+                       yaml,
+                       bytestring

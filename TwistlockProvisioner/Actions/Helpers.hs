@@ -11,6 +11,7 @@ import System.IO
 import Pipes.Prelude
 import Pipes.Core
 import Pipes
+import Data.ByteString hiding (hGetContents)
 
 type ActionResult m = (
 	Producer String m (), -- Stdout 
@@ -26,11 +27,11 @@ runAction command = do
 
 runActionWithInput
 	:: MonadIO m => String -- Action command
-	-> String -- Input
+	-> ByteString -- Input
 	-> IO (ActionResult m)
 runActionWithInput command input = do
 	(inp, outH, errH, pHandle) <- runInteractiveCommand command
-	hPutStr inp input
+	hPut inp input
 	hClose inp
 	return $ actionResult outH errH pHandle
 

@@ -15,10 +15,7 @@ import Control.Concurrent
 main :: IO()
 main = scotty 3000 $ do
 	get "/status.json" $ do
-		exitCode <- liftIO Action.echoHelloWorldWithInput
-		if exitCode == ExitSuccess
-			then json $ object [ "status" .= ("ok" :: String) ]
-			else json $ object [ "status" .= ("not ok" :: String)]
+		json $ object [ "status" .= ("ok" :: String) ]
 
 	get "/templates" $ do
 		templates <- liftIO $ (listContainers cfg :: IO [(String, Maybe Value)])
@@ -37,7 +34,9 @@ main = scotty 3000 $ do
 		json $ object [ "status" .= ("ok" :: String) ]
 
 	post "/templates/:name/instances" $ do
-		json $ object [ "status" .= ("ok" :: String) ]
+		name <- param "name"
+		options <- jsonData
+		streamAction $ startContainer cfg name options
 
 	put "/templates/:name/instances/:instance_id/links" $ do
 		json $ object [ "status" .= ("ok" :: String) ]
