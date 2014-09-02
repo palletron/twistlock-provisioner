@@ -30,6 +30,10 @@ main = scotty 3000 $ do
 		name <- param "name"
 		streamAction $ updateContainerTemplateGit cfg name
 
+	post "/templates/:name/build" $ do
+		name <- param "name"
+		streamAction $ buildContainer cfg name
+
 	get "/templates/:name/instances/:instance_id" $ do
 		json $ object [ "status" .= ("ok" :: String) ]
 
@@ -39,7 +43,10 @@ main = scotty 3000 $ do
 		streamAction $ startContainer cfg name options
 
 	put "/templates/:name/instances/:instance_id/links" $ do
-		json $ object [ "status" .= ("ok" :: String) ]
+		name <- param "name"
+		instanceId <- param "instance_id"
+		options <- jsonData
+		streamAction $ linkContainer cfg name instanceId options
 
 	delete "/templates/:name/instances/:instance_id" $ do
 		json $ object [ "status" .= ("ok" :: String) ]

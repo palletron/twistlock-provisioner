@@ -63,16 +63,22 @@ cdToTemplatePath cfg name = "cd " ++ (encodeString $ getTemplatePath cfg $ pack 
  - In that directory we can execute ./control build
  -}
 buildContainer :: MonadIO m => Configuration -> Text -> IO (ActionResult m)
-buildContainer cfg name = runAction buildCommand 
-  where
-  	buildCommand = undefined
-	path = getTemplatePath cfg name 
+buildContainer cfg name = runAction command 
+	where
+		command = (cdToTemplatePath cfg (unpack name)) ++ "; " ++ "./control build"
 
 startContainer :: (MonadIO m) => Configuration -> Text -> Y.Value -> IO (ActionResult m)
 startContainer cfg name options = runActionWithInput command input
 	where
 		input = Y.encode options
-		command = (cdToTemplatePath cfg (unpack name)) ++ "; " ++ "./control start"
+		command = (cdToTemplatePath cfg (unpack name)) ++ "; " ++ "./control run"
+
+linkContainer :: (MonadIO m) => Configuration -> Text -> Text -> Y.Value -> IO (ActionResult m)
+linkContainer cfg name cid options = runActionWithInput command input
+	where
+		input = Y.encode options
+		cdToT = cdToTemplatePath cfg (unpack name)
+		command = cdToT ++ "; " ++ "./control link " ++ (unpack cid)
 
 getTemplatePath :: Configuration -> Text -> FilePath
 getTemplatePath cfg name = FP.append (containerTemplateDir cfg) (fromText name) 
