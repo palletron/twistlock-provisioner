@@ -34,6 +34,10 @@ main = scotty 3000 $ do
 		name <- param "name"
 		streamAction $ buildContainer cfg name
 
+	delete "/templates/:name" $ do
+		name <- param "name"
+		streamAction $ deleteContainer cfg name
+
 	get "/templates/:name/instances/:instance_id" $ do
 		json $ object [ "status" .= ("ok" :: String) ]
 

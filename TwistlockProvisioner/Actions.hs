@@ -67,6 +67,11 @@ buildContainer cfg name = runAction command
 	where
 		command = (cdToTemplatePath cfg (unpack name)) ++ "; " ++ "./control build"
 
+deleteContainer :: MonadIO m => Configuration -> Text -> IO (ActionResult m)
+deleteContainer cfg name = runAction command 
+	where
+		command = "rm -r " ++ (encodeString $ getTemplatePath cfg name)
+
 startContainer :: (MonadIO m) => Configuration -> Text -> Y.Value -> IO (ActionResult m)
 startContainer cfg name options = runActionWithInput command input
 	where
