@@ -15,17 +15,17 @@ import qualified Data.Yaml as Y
 {-- Download a container template via git --}
 downloadContainerTemplateGit :: MonadIO m => Configuration -> String -> String -> IO (ActionResult m)
 downloadContainerTemplateGit cfg name url = do
-	createDirectoryIfMissing True (unpack $ encode $ templatePath)
+	createDirectoryIfMissing True (encodeString templatePath)
 	runAction getCommand 
   where
-  	getCommand = "cd " ++ (unpack $ encode templatePath) ++ "; " ++ "git clone " ++ url ++ " " ++ name
+	getCommand = "cd " ++ (encodeString templatePath) ++ "; " ++ "git clone " ++ url ++ " " ++ name
 	templatePath = containerTemplateDir cfg
 
 {- Return all container templates and their descriptions
  -}
 listContainers :: Y.FromJSON a => Configuration -> IO ([(String, Maybe a)])
 listContainers cfg = do
-	names <- getDirectoryContents $ unpack $ encode $ templateDirPath
+	names <- getDirectoryContents $ encodeString templateDirPath
 	let filteredNames = filter (\ n -> n /= "." && n /= "..") names
 	mapM getDescription filteredNames
 	where
