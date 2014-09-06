@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 import Web.Scotty
-import Data.Aeson hiding (json)
+import Data.Aeson as J hiding (json)
 import TwistlockProvisioner.Actions as Action
+import TwistlockProvisioner.Actions.Helpers as Action
 import TwistlockProvisioner.Configuration
 import Control.Monad.IO.Class
 import Filesystem.Path.CurrentOS
@@ -11,6 +12,7 @@ import Pipes.Prelude hiding (show)
 import Pipes.Core
 import Pipes
 import Control.Concurrent
+import Data.ByteString.Lazy.Char8 as BL
 
 main :: IO()
 main = scotty 3000 $ do
@@ -58,17 +60,18 @@ main = scotty 3000 $ do
 	where
 		cfg = Configuration (fromText "templates/")
 
-		streamAction action = do
-			(out, err, pHandle) <- liftIO $ action
+streamAction :: IO (ActionResult IO) -> ActionM ()
+streamAction action = do
+	(out, err, pHandle) <- liftIO $ action
 
-			let split a b = for cat $ \x -> do
-				x ~> a
-				x ~> b
+	result <- liftIO $ fold (++) "" id out
+	liftIO $ forkIO $ runEffect $ err >-> stdoutLn
 
-			liftIO $ forkIO $ runEffect $ out >-> stdoutLn
-			liftIO $ forkIO $ runEffect $ err >-> stdoutLn
+	let maybeJson = (J.decode $ pack $ result :: Maybe Value)
+	exitCode <- liftIO $ waitForProcess pHandle
 
-			exitCode <- liftIO $ waitForProcess pHandle
-			if exitCode == ExitSuccess
-				then json $ object [ "status" .= ("ok" :: String) ]
-				else json $ object [ "status" .= ("not ok" :: String)]
+	if exitCode == ExitSuccess
+		then case maybeJson of
+			Just v -> json $ v
+			Nothing -> json $ object [ "status" .= ("not ok" :: String)]
+		else json $ object [ "status" .= ("not ok" :: String)]
