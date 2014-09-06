@@ -4,13 +4,11 @@ import TwistlockProvisioner.Actions.Helpers
 import TwistlockProvisioner.Configuration
 import Filesystem.Path.CurrentOS as FP
 import System.Directory
-import System.Process
-import System.Exit
-import Pipes.Prelude hiding (show, mapM, filter)
-import Pipes.Core
 import Pipes
 import Data.Text hiding (filter)
 import qualified Data.Yaml as Y
+import qualified Data.Aeson as J
+import Data.ByteString.Lazy (toStrict)
 
 {-- Download a container template via git --}
 downloadContainerTemplateGit :: MonadIO m => Configuration -> String -> String -> IO (ActionResult m)
@@ -75,13 +73,13 @@ deleteContainer cfg name = runAction command
 startContainer :: (MonadIO m) => Configuration -> Text -> Y.Value -> IO (ActionResult m)
 startContainer cfg name options = runActionWithInput command input
 	where
-		input = Y.encode options
+		input = toStrict $ J.encode options
 		command = (cdToTemplatePath cfg (unpack name)) ++ "; " ++ "./control run"
 
 linkContainer :: (MonadIO m) => Configuration -> Text -> Text -> Y.Value -> IO (ActionResult m)
 linkContainer cfg name cid options = runActionWithInput command input
 	where
-		input = Y.encode options
+		input = toStrict $ J.encode options
 		cdToT = cdToTemplatePath cfg (unpack name)
 		command = cdToT ++ "; " ++ "./control link " ++ (unpack cid)
 
