@@ -57,8 +57,14 @@ main = scotty 3000 $ do
 
 	where
 		cfg = Configuration (fromText "templates/")
+
 		streamAction action = do
 			(out, err, pHandle) <- liftIO $ action
+
+			let split a b = for cat $ \x -> do
+				x ~> a
+				x ~> b
+
 			liftIO $ forkIO $ runEffect $ out >-> stdoutLn
 			liftIO $ forkIO $ runEffect $ err >-> stdoutLn
 
