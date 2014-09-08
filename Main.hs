@@ -41,7 +41,7 @@ main = scotty 3000 $ do
 		streamAction $ deleteContainer cfg name
 
 	get "/templates/:name/instances/:instance_id" $ do
-		json $ object [ "status" .= ("ok" :: String) ]
+		json $ object [ "status" .= ("not implemented" :: String) ]
 
 	post "/templates/:name/instances" $ do
 		name <- param "name"
@@ -55,7 +55,7 @@ main = scotty 3000 $ do
 		streamAction $ linkContainer cfg name instanceId options
 
 	delete "/templates/:name/instances/:instance_id" $ do
-		json $ object [ "status" .= ("ok" :: String) ]
+		json $ object [ "status" .= ("not implemented" :: String) ]
 
 	where
 		cfg = Configuration (fromText "templates/")
@@ -73,5 +73,5 @@ streamAction action = do
 	if exitCode == ExitSuccess
 		then case maybeJson of
 			Just v -> json $ v
-			Nothing -> json $ object [ "status" .= ("not ok" :: String)]
+			Nothing -> json $ object [ "status" .= ("ok, no json output" :: String)]
 		else json $ object [ "status" .= ("not ok" :: String)]
