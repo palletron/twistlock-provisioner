@@ -23,6 +23,13 @@ main = scotty 3000 $ do
 		templates <- liftIO $ (listContainers cfg :: IO [(String, Maybe Value)])
 		json $ object ["templates" .= templates]
 
+	get "/templates/:name" $ do
+		name <- param "name"
+		template <- liftIO $ getContainerDescription cfg name
+		json $ case template of
+			Just t -> t
+			Nothing -> object [ "status" .= ("ok" :: String) ]
+
 	post "/templates" $ do
 		name <- param "name"
 		url <- param "url"
