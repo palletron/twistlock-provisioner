@@ -2,4 +2,4 @@ Next steps:
   - Get container status
   - Document actions
   - Make responses consistent
-  - Streaming responses. I am thinking this is done best by letting commands return a command id, that identifies a log file that can be requested seperately. The interface can be a simple interface that can tail log files and stream them line by line.
+  - Streaming responses. I am thinking this is done best by letting commands return a command id, that identifies a log file that can be requested seperately. The interface can be a simple interface that can tail log files and stream them line by line. The would be a configuration option where the log files are stored.
