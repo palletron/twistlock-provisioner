@@ -64,6 +64,16 @@ main = scotty 3000 $ do
 	delete "/templates/:name/instances/:instance_id" $ do
 		json $ object [ "status" .= ("not implemented" :: String) ]
 
+
+	{- Posting a port and ip of a container to exposed will make the provisioner
+	 - forward traffic on a given port to the container port and address
+	 -}
+	post "/exposed" $ do
+		container_ip <- param "container_ip"
+		container_port <- param "container_port"
+		port <- param "port"
+		json $ object [ "status" .= ("not implemented" :: String) ]
+
 	where
 		cfg = Configuration (fromText "templates/")
 
